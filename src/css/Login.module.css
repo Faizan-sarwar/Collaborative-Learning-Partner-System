@@ -30,6 +30,32 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
+.loaderWrapper {
+  height: 4rem;
+  width: 4rem;
+  aspect-ratio: 2/3;
+  --c: no-repeat linear-gradient(rgb(19, 127, 236)); /* loader color */
+  background: var(--c), var(--c), var(--c), var(--c);
+  background-size: 50% 33.4%;
+  animation: spinning 2s linear infinite; /* slower than before */
+}
+
+@keyframes spinning {
+  0%,
+  5% {
+    background-position: 0 25%, 100% 25%, 0 75%, 100% 75%;
+  }
+  33% {
+    background-position: 0 50%, 100% 0, 0 100%, 100% 50%;
+  }
+  66% {
+    background-position: 0 50%, 0 0, 100% 100%, 100% 50%;
+  }
+  95%,
+  100% {
+    background-position: 0 75%, 0 25%, 100% 75%, 100% 25%;
+  }
+}
 
 .logoSvg {
   height: 4rem;
@@ -281,4 +307,3 @@
   align-items: center;
   z-index: 9999;
 }
-

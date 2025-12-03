@@ -76,20 +76,23 @@ function Login() {
       <div className={styles.brandingSection}>
         <div className={styles.brandingContent}>
           <div className={styles.logoContainer}>
-            <svg
-              className={styles.logoSvg}
-              fill="none"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                clipRule="evenodd"
-                d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z"
-                fill="currentColor"
-                fillRule="evenodd"
-              />
-            </svg>
+            <div className={styles.loaderWrapper}>
+              {/* <svg
+                className={styles.logoSvg}
+                fill="none"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  clipRule="evenodd"
+                  d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z"
+                  fill="currentColor"
+                  fillRule="evenodd"
+                />
+              </svg> */}
+            </div>
           </div>
+
           <h1 className={styles.brandingTitle}>
             Collaborative Learning Partner System
           </h1>
@@ -140,11 +143,10 @@ function Login() {
                 required
               />
               <i
-                className={`${
-                  showPassword
+                className={`${showPassword
                     ? "fa-regular fa-eye-slash"
                     : "fa-regular fa-eye"
-                } ${styles.toggleEye}`}
+                  } ${styles.toggleEye}`}
                 onClick={() => setShowPassword(!showPassword)}
               ></i>
             </div>
