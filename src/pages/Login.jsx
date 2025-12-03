@@ -1,29 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../css/Login.module.css";
+import Loader from "../components/UI Components/Loader";
 import { useDarkMode } from "./DarkModeContext";
 
 function Login() {
-  const { darkMode, setDarkMode } = useDarkMode();
+  const { darkMode } = useDarkMode();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // 🟢 Clear localStorage when page is shown (including back navigation)
+  // Clear localStorage
   useEffect(() => {
     const clearUserData = () => {
       localStorage.removeItem("user");
       setFormData({ email: "", password: "" });
     };
-
-    // Normal page load
     clearUserData();
-
-    // When user navigates back/forward
     window.addEventListener("pageshow", clearUserData);
     window.addEventListener("popstate", clearUserData);
-
     return () => {
       window.removeEventListener("pageshow", clearUserData);
       window.removeEventListener("popstate", clearUserData);
@@ -34,32 +32,47 @@ function Login() {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true); // show loader only
 
-    try {
-      const res = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+    // simulate 2-second loading before sending login request
+    setTimeout(async () => {
+      try {
+        const res = await fetch("http://localhost:5000/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (res.ok) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/website");
-      } else {
-        setError(data.message);
+        if (res.ok) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+          navigate("/website");
+        } else {
+          setError(data.message);
+        }
+      } catch (err) {
+        setError("Something went wrong. Please try again.");
       }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
-    }
+
+      setLoading(false);
+    }, 2000);
   };
 
+  // Show only loader when loading
+  if (loading) {
+    return (
+      <div className={styles.fullScreenLoader}>
+        <Loader />
+      </div>
+    );
+  }
+
   return (
-    <div className={`${styles.container} ${darkMode ? styles.darkMode : ''}`}>
+    <div className={`${styles.container} ${darkMode ? styles.darkMode : ""}`}>
       <div className={styles.brandingSection}>
         <div className={styles.brandingContent}>
           <div className={styles.logoContainer}>
@@ -69,7 +82,6 @@ function Login() {
               viewBox="0 0 48 48"
               xmlns="http://www.w3.org/2000/svg"
             >
-
               <path
                 clipRule="evenodd"
                 d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z"
@@ -95,11 +107,9 @@ function Login() {
               Login to continue your learning journey.
             </p>
           </div>
-          {error && (
-            <div className="errorMessage">
-              {error}
-            </div>
-          )}
+
+          {error && <div className="errorMessage">{error}</div>}
+
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
               <label className={styles.formLabel} htmlFor="email">
@@ -115,6 +125,7 @@ function Login() {
                 required
               />
             </div>
+
             <div className={styles.formGroup}>
               <label className={styles.formLabel} htmlFor="password">
                 Password
@@ -123,25 +134,38 @@ function Login() {
                 className={styles.formInput}
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
                 required
               />
+              <i
+                className={`${
+                  showPassword
+                    ? "fa-regular fa-eye-slash"
+                    : "fa-regular fa-eye"
+                } ${styles.toggleEye}`}
+                onClick={() => setShowPassword(!showPassword)}
+              ></i>
             </div>
+
             <div className={styles.formOptions}>
               <a className={styles.forgotPasswordLink} href="#">
                 Forgot Password?
               </a>
             </div>
+
             <button className={styles.loginButton} type="submit">
               Login
             </button>
           </form>
+
           <div className={styles.signupPrompt}>
             <p className={styles.signupText}>
               Don't have an account?{" "}
-              <Link to="/signup " className={styles.signupLink}>Sign Up</Link>
+              <Link to="/signup" className={styles.signupLink}>
+                Sign Up
+              </Link>
             </p>
           </div>
         </div>
