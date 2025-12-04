@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import styles from "../css/Signup.module.css";
 import { useDarkMode } from "./DarkModeContext";
 import { Link } from "react-router-dom";
+import Alert from "../components/UI Components/Alert.jsx";
 
 const Signup = () => {
   const { darkMode } = useDarkMode();
+
   const [formData, setFormData] = useState({
     name: "",
     rollNumber: "",
@@ -17,10 +19,13 @@ const Signup = () => {
     studyStyle: "",
     availability: "",
   });
+
   const [picture, setPicture] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   const subjects = [
     "DSA", "Web Development", "MAD", "Programming Fundamentals", "Artificial Intelligence",
@@ -32,13 +37,17 @@ const Signup = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "password") calculatePasswordStrength(value);
   };
 
   const handleCheckboxChange = (e, field) => {
     const { value, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [field]: checked ? [...prev[field], value] : prev[field].filter((v) => v !== value)
+      [field]: checked
+        ? [...prev[field], value]
+        : prev[field].filter((v) => v !== value),
     }));
   };
 
@@ -50,14 +59,67 @@ const Signup = () => {
     setPicture(e.target.files[0]);
   };
 
+  // Password strength calculation
+  const calculatePasswordStrength = (password) => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Za-z]/.test(password) && /\d/.test(password)) score++;
+    if (/[@$!%*?&#^()_\-+=]/.test(password)) score++;
+    setPasswordStrength(score);
+  };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible((prev) => !prev);
+  };
+
+  const validateForm = () => {
+    const nameRegex = /^[A-Za-z ]{3,}$/;
+    if (!nameRegex.test(formData.name)) {
+      setError("Please enter a valid full name. Only letters allowed.");
+      return false;
+    }
+
+    const rollRegex = /^[0-9]{8}-[0-9]{3}$/; // Correct roll number format
+    if (!rollRegex.test(formData.rollNumber)) {
+      setError("Roll number must be in the format 22034156-043.");
+      return false;
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address.");
+      return false;
+    }
+
+    const strongPasswordRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=]).{8,}$/;
+    if (!strongPasswordRegex.test(formData.password)) {
+      setError(
+        "Password must be at least 8 characters and include letters, numbers, and symbols."
+      );
+      return false;
+    }
+
+    if (formData.semester && !/^[0-9]+$/.test(formData.semester)) {
+      setError("Semester must be a number.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    if (!validateForm()) return;
+
     setIsSubmitting(true);
 
     try {
       const payload = new FormData();
+
       for (const key in formData) {
         if (Array.isArray(formData[key])) {
           formData[key].forEach((val) => payload.append(key, val));
@@ -65,6 +127,7 @@ const Signup = () => {
           payload.append(key, formData[key]);
         }
       }
+
       if (picture) payload.append("picture", picture);
 
       const res = await fetch("http://localhost:5000/signup", {
@@ -73,6 +136,7 @@ const Signup = () => {
       });
 
       const data = await res.json();
+
       if (res.ok) {
         setSuccess(data.message);
         setFormData({
@@ -88,6 +152,7 @@ const Signup = () => {
           availability: "",
         });
         setPicture(null);
+        setPasswordStrength(0);
       } else {
         setError(data.message);
       }
@@ -119,6 +184,7 @@ const Signup = () => {
             </svg>
             <h1 className={styles.logoText}>Collaborative Learning Partner System</h1>
           </div>
+
           <Link to="/login" className={styles.loginButton}>
             Login
           </Link>
@@ -127,6 +193,11 @@ const Signup = () => {
 
       <main className={styles.main}>
         <div className={styles.formContainer}>
+
+          {/* ALERTS */}
+          {error && <Alert type="error" message={error} onClose={() => setError("")} />}
+          {success && <Alert type="success" message={success} onClose={() => setSuccess("")} />}
+
           <div className={styles.formHeader}>
             <h2 className={styles.formHeaderTitle}>Student Registration &amp; Profile</h2>
             <p className={styles.formHeaderText}>
@@ -134,11 +205,7 @@ const Signup = () => {
             </p>
           </div>
 
-          {error && <div className={styles.errorMessage}>{error}</div>}
-          {success && <div className={styles.successMessage}>{success}</div>}
-
           <form className={styles.form} onSubmit={handleSubmit}>
-            {/* Personal Info */}
             <div className={styles.formGrid}>
               <div className={styles.formGroup}>
                 <label htmlFor="name" className={styles.label}>Full Name</label>
@@ -162,7 +229,7 @@ const Signup = () => {
                   type="text"
                   value={formData.rollNumber}
                   onChange={handleInputChange}
-                  placeholder="e.g., 21CS001"
+                  placeholder="e.g., 22034156-043"
                   className={styles.input}
                   required
                 />
@@ -197,16 +264,41 @@ const Signup = () => {
 
               <div className={styles.formGroup}>
                 <label htmlFor="password" className={styles.label}>Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="********"
-                  className={styles.input}
-                  required
-                />
+                <div className={styles.passwordWrapper}>
+                  <input
+                    id="password"
+                    name="password"
+                    type={passwordVisible ? "text" : "password"}
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="********"
+                    className={styles.input}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={styles.showPasswordBtn}
+                    onClick={togglePasswordVisibility}
+                  >
+                    {passwordVisible ? "Hide" : "Show"}
+                  </button>
+                </div>
+
+                {formData.password.length > 0 && (
+                  <div className={styles.strengthWrapper}>
+                    <div
+                      className={`${styles.strengthBar} ${
+                        passwordStrength === 1
+                          ? styles.weak
+                          : passwordStrength === 2
+                          ? styles.medium
+                          : passwordStrength === 3
+                          ? styles.strong
+                          : ""
+                      }`}
+                    ></div>
+                  </div>
+                )}
               </div>
 
               <div className={styles.formGroup}>
@@ -236,9 +328,8 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Academic Profile */}
+            {/* Academic Strengths */}
             <div className={styles.sectionDivider}><h3>Academic Profile</h3></div>
-
             <div className={styles.formGroup}>
               <label>Academic Strengths</label>
               <p className={styles.sectionDescription}>Select the subjects you excel in.</p>
@@ -279,7 +370,6 @@ const Signup = () => {
 
             {/* Learning Preferences */}
             <div className={styles.sectionDivider}><h3>Learning Preferences</h3></div>
-
             <div className={styles.formGroup}>
               <label>Preferred Study Style</label>
               <div className={styles.radioGroup}>
@@ -303,7 +393,6 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Availability */}
             <div className={styles.formGroup}>
               <label htmlFor="availability">Availability</label>
               <p className={styles.sectionDescription}>
@@ -329,6 +418,7 @@ const Signup = () => {
                 {isSubmitting ? "Creating Profile..." : "Create Profile"}
               </button>
             </div>
+
           </form>
         </div>
       </main>

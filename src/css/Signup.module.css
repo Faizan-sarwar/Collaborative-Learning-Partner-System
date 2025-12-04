@@ -1,7 +1,7 @@
 body {
   background-color: var(--background-light);
   color: var(--text-light-primary);
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   margin: 0;
 }
 
@@ -323,7 +323,7 @@ form {
   color: var(--input-placeholder-dark);
 }
 .darkMode .form {
-  background-color: var(--surface-dark); 
+  background-color: var(--surface-dark);
 }
 
 .darkMode .checkboxItem input[type="checkbox"]:checked::after {
@@ -365,4 +365,47 @@ form {
   .formGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.showPasswordBtn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+}
+
+.strengthWrapper {
+  margin-top: 6px;
+  height: 6px;
+  width: 100%;
+  background: #e6e6e6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.strengthBar {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.weak {
+  width: 33%;
+  background: red;
+}
+
+.medium {
+  width: 66%;
+  background: orange;
+}
+
+.strong {
+  width: 100%;
+  background: green;
 }
