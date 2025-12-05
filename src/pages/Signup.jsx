@@ -35,7 +35,7 @@ const Signup = () => {
   ];
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target; 
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (name === "password") calculatePasswordStrength(value);
@@ -59,7 +59,6 @@ const Signup = () => {
     setPicture(e.target.files[0]);
   };
 
-  // Password strength calculation
   const calculatePasswordStrength = (password) => {
     let score = 0;
     if (password.length >= 8) score++;
@@ -79,7 +78,7 @@ const Signup = () => {
       return false;
     }
 
-    const rollRegex = /^[0-9]{8}-[0-9]{3}$/; // Correct roll number format
+    const rollRegex = /^[0-9]{8}-[0-9]{3}$/;
     if (!rollRegex.test(formData.rollNumber)) {
       setError("Roll number must be in the format 22034156-043.");
       return false;
@@ -287,15 +286,14 @@ const Signup = () => {
                 {formData.password.length > 0 && (
                   <div className={styles.strengthWrapper}>
                     <div
-                      className={`${styles.strengthBar} ${
-                        passwordStrength === 1
-                          ? styles.weak
-                          : passwordStrength === 2
+                      className={`${styles.strengthBar} ${passwordStrength === 1
+                        ? styles.weak
+                        : passwordStrength === 2
                           ? styles.medium
                           : passwordStrength === 3
-                          ? styles.strong
-                          : ""
-                      }`}
+                            ? styles.strong
+                            : ""
+                        }`}
                     ></div>
                   </div>
                 )}
@@ -303,32 +301,44 @@ const Signup = () => {
 
               <div className={styles.formGroup}>
                 <label htmlFor="department" className={styles.label}>Department</label>
-                <input
+                <select
                   id="department"
                   name="department"
-                  type="text"
                   value={formData.department}
                   onChange={handleInputChange}
-                  placeholder="e.g., Computer Science"
                   className={styles.input}
-                />
+                  required
+                >
+                  <option value="">Select Department</option>
+                  <option value="Information Technology">Information Technology</option>
+                </select>
               </div>
+
 
               <div className={styles.formGroup}>
                 <label htmlFor="semester" className={styles.label}>Semester</label>
-                <input
+                <select
                   id="semester"
                   name="semester"
-                  type="text"
                   value={formData.semester}
                   onChange={handleInputChange}
-                  placeholder="e.g., 5th"
                   className={styles.input}
-                />
+                  required
+                >
+                  <option value="">Select Semester</option>
+                  <option value="1">1st Semester</option>
+                  <option value="2">2nd Semester</option>
+                  <option value="3">3rd Semester</option>
+                  <option value="4">4th Semester</option>
+                  <option value="5">5th Semester</option>
+                  <option value="6">6th Semester</option>
+                  <option value="7">7th Semester</option>
+                  <option value="8">8th Semester</option>
+                </select>
               </div>
+
             </div>
 
-            {/* Academic Strengths */}
             <div className={styles.sectionDivider}><h3>Academic Profile</h3></div>
             <div className={styles.formGroup}>
               <label>Academic Strengths</label>
@@ -368,7 +378,6 @@ const Signup = () => {
               </div>
             </div>
 
-            {/* Learning Preferences */}
             <div className={styles.sectionDivider}><h3>Learning Preferences</h3></div>
             <div className={styles.formGroup}>
               <label>Preferred Study Style</label>

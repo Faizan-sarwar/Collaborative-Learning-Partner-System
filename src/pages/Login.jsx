@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "../css/Login.module.css";
 import Loader from "../components/UI Components/Loader";
 import { useDarkMode } from "./DarkModeContext";
+import Alert from "../components/UI Components/Alert";
 
 function Login() {
   const { darkMode } = useDarkMode();
@@ -10,6 +11,7 @@ function Login() {
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -35,6 +37,7 @@ function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true); // show loader only
 
     // simulate 2-second loading before sending login request
@@ -72,7 +75,10 @@ function Login() {
   }
 
   return (
+
     <div className={`${styles.container} ${darkMode ? styles.darkMode : ""}`}>
+      {error && <Alert type="error" message={error} onClose={() => setError("")} />}
+      {success && <Alert type="success" message={success} onClose={() => setSuccess("")} />}
       <div className={styles.brandingSection}>
         <div className={styles.brandingContent}>
           <div className={styles.logoContainer}>
@@ -144,8 +150,8 @@ function Login() {
               />
               <i
                 className={`${showPassword
-                    ? "fa-regular fa-eye-slash"
-                    : "fa-regular fa-eye"
+                  ? "fa-regular fa-eye-slash"
+                  : "fa-regular fa-eye"
                   } ${styles.toggleEye}`}
                 onClick={() => setShowPassword(!showPassword)}
               ></i>
